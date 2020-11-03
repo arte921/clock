@@ -4,7 +4,8 @@ use chrono::prelude::*;
 struct Wijzer {
     eenheid: u32,
     lengte: f32,
-    kleur: Color
+    kleur: Color,
+    dikte: f32
 }
 
 const STRAAL: f32 = 400.0;
@@ -18,19 +19,22 @@ const WIJZERS: [Wijzer; 3] = [
     Wijzer {
         eenheid: 43200000,
         lengte: 0.4,
-        kleur: Color::WHITE
+        kleur: Color::WHITE,
+        dikte: 3.0
     },
     // minuten
     Wijzer { 
         eenheid: 3600000,
         lengte: 0.7,
-        kleur: Color::DARKBLUE
+        kleur: Color::DARKBLUE,
+        dikte: 2.0
     },
     // seconden
     Wijzer { 
         eenheid: 60000,
         lengte: 0.8,
-        kleur: Color::RED
+        kleur: Color::RED,
+        dikte: 1.0
     },
 ];
 
@@ -56,7 +60,7 @@ fn main () {
                     wijzer.lengte * STRAAL,
                     MIDDEN
                 ),
-                4.0,
+                wijzer.dikte,
                 wijzer.kleur
             );
         }
@@ -65,21 +69,18 @@ fn main () {
         for i in 1..=60 {
             let binnenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(i, 60, STRAAL * 0.9, MIDDEN);
             let buitenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(i, 60, STRAAL, MIDDEN);
-            d.draw_line_ex(binnenste_coordinaat_lijn, buitenste_coordinaat_lijn, 2.0, Color::BLUE);
+            d.draw_line_ex(binnenste_coordinaat_lijn, buitenste_coordinaat_lijn, 3.0, Color::BLUE);
         }
 
         // teken langere lijntjes voor uren
         for uur in 1..=12 {
             let binnenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(uur, 12, STRAAL, MIDDEN);
             let buitenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(uur, 12, STRAAL * 0.8, MIDDEN);
-            d.draw_line_ex(binnenste_coordinaat_lijn, buitenste_coordinaat_lijn, 3.0, Color::GREEN);
+            d.draw_line_ex(binnenste_coordinaat_lijn, buitenste_coordinaat_lijn, 4.0, Color::GREEN);
         }
     }
 }
 
-fn teken_wijzer (tijd: u32, tijdseenheid: u32, straal: f32, kleur: Color, midden: Vector2, d: &mut RaylibDrawHandle) {
-    
-}
 
 // zet een tijdseenheid, zoals uren/minuten/seconden om naar een vector met een rotatie, geschaald naar wijzerlengte
 fn tijdseenheid_naar_coordinaat (tijd: u32, tijdseenheid: u32, straal: f32, toevoeging: Vector2) -> Vector2  {
