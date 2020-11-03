@@ -10,17 +10,33 @@ struct Wijzer {
 const STRAAL: f32 = 400.0;
 const MARGE: f32 = 0.05 * STRAAL;
 const MIDDEN: Vector2 = Vector2::new(STRAAL + MARGE, STRAAL + MARGE);
+const SCHERMGROOTTE: i32 = 2 * (MARGE + STRAAL) as i32;
 
 // 86400000 per dag
 const WIJZERS: [Wijzer; 3] = [
-    Wijzer {eenheid: 43200000,  lengte: 0.4, kleur: Color::WHITE}, // uren
-    Wijzer {eenheid: 3600000,   lengte: 0.7, kleur: Color::BLUE }, // minuten
-    Wijzer {eenheid: 60000,     lengte: 0.8, kleur: Color::RED  }, // seconden
+    // uren
+    Wijzer {
+        eenheid: 43200000,
+        lengte: 0.4,
+        kleur: Color::WHITE
+    },
+    // minuten
+    Wijzer { 
+        eenheid: 3600000,
+        lengte: 0.7,
+        kleur: Color::DARKBLUE
+    },
+    // seconden
+    Wijzer { 
+        eenheid: 60000,
+        lengte: 0.8,
+        kleur: Color::RED
+    },
 ];
 
 fn main () {
     let (mut rl, thread) = raylib::init()
-        .size(2 * (MARGE + STRAAL) as i32, 2 * (MARGE + STRAAL) as i32)
+        .size(SCHERMGROOTTE, SCHERMGROOTTE)
         .title("haha rust go 🅱️rrrr")
         .build();
      
@@ -30,24 +46,30 @@ fn main () {
 
         let mut d = rl.begin_drawing(&thread); 
         d.clear_background(Color::BLACK);
-        d.draw_fps(0, 0);
 
         for wijzer in WIJZERS.iter() {
-            teken_wijzer(milliseconden % wijzer.eenheid, wijzer.eenheid, wijzer.lengte * STRAAL, wijzer.kleur, MIDDEN, &mut d);
+            teken_wijzer(
+                milliseconden % wijzer.eenheid,
+                wijzer.eenheid,
+                wijzer.lengte * STRAAL,
+                wijzer.kleur,
+                MIDDEN,
+                &mut d
+            );
         }
 
-        // teken tekst en langere lijntjes voor uren
+        // teken korte lijntjes voor minuten/seconden
+        for i in 1..=60 {
+            let binnenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(i, 60, STRAAL * 0.9, MIDDEN);
+            let buitenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(i, 60, STRAAL, MIDDEN);
+            d.draw_line_v(binnenste_coordinaat_lijn, buitenste_coordinaat_lijn, Color::BLUE);
+        }
+
+        // teken langere lijntjes voor uren
         for uur in 1..=12 {
             let binnenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(uur, 12, STRAAL, MIDDEN);
             let buitenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(uur, 12, STRAAL * 0.8, MIDDEN);
-            d.draw_line_v(binnenste_coordinaat_lijn, buitenste_coordinaat_lijn, Color::WHITE);
-        }
-
-        // teken bolletjes voor minuten/seconden
-        for i in 1..=60 {
-            let binnenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(i, 60, STRAAL, MIDDEN);
-            let buitenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(i, 60, STRAAL * 0.9, MIDDEN);
-            d.draw_line_v(binnenste_coordinaat_lijn, buitenste_coordinaat_lijn, Color::WHITE);
+            d.draw_line_v(binnenste_coordinaat_lijn, buitenste_coordinaat_lijn, Color::GREEN);
         }
     }
 }
