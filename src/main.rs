@@ -1,89 +1,88 @@
 use raylib::prelude::*;
 use chrono::prelude::*;
 
-struct Wijzer {
-    eenheid: u32,
-    lengte: f32,
-    kleur: Color,
-    dikte: f32
+struct Wizer {
+    unit: u32,
+    length: f32,
+    color: Color,
+    thiccness: f32
 }
 
-const STRAAL: f32 = 400.0;
-const MARGE: f32 = 0.05 * STRAAL;
-const MIDDEN: Vector2 = Vector2::new(STRAAL + MARGE, STRAAL + MARGE);
-const SCHERMGROOTTE: i32 = 2 * (MARGE + STRAAL) as i32;
+const RAY: f32 = 400.0;
+const MARGIN: f32 = 0.05 * RAY;
+const MIDDLE: Vector2 = Vector2::new(RAY + MARGIN, RAY + MARGIN);
+const SCREENSIZE: i32 = 2 * (MARGIN + RAY) as i32;
 
-// 86400000 per dag
-const WIJZERS: [Wijzer; 3] = [
-    // uren
-    Wijzer {
-        eenheid: 43200000,
-        lengte: 0.4,
-        kleur: Color::WHITE,
-        dikte: 3.0
+// 86400000 per day
+const WISERS: [Wizer; 3] = [
+    // hours
+    Wizer {
+        unit: 43200000,
+        length: 0.4,
+        color: Color::WHITE,
+        thiccness: 3.0
     },
-    // minuten
-    Wijzer { 
-        eenheid: 3600000,
-        lengte: 0.7,
-        kleur: Color::DARKBLUE,
-        dikte: 2.0
+    // minutes
+    Wizer { 
+        unit: 3600000,
+        length: 0.7,
+        color: Color::DARKBLUE,
+        thiccness: 2.0
     },
-    // seconden
-    Wijzer { 
-        eenheid: 60000,
-        lengte: 0.8,
-        kleur: Color::RED,
-        dikte: 1.0
+    // seconds
+    Wizer { 
+        unit: 60000,
+        length: 0.8,
+        color: Color::RED,
+        thiccness: 1.0
     },
 ];
 
 fn main () {
     let (mut rl, thread) = raylib::init()
-        .size(SCHERMGROOTTE, SCHERMGROOTTE)
+        .size(SCREENSIZE, SCREENSIZE)
         .title("haha rust go 🅱️rrrr")
         .build();
      
     while !rl.window_should_close() {
         let now = Local::now();
-        let milliseconden = now.num_seconds_from_midnight() * 1000 + now.timestamp_subsec_millis();
+        let milliseconds = now.num_seconds_from_midnight() * 1000 + now.timestamp_subsec_millis();
 
         let mut d = rl.begin_drawing(&thread); 
         d.clear_background(Color::BLACK);
 
-        for wijzer in WIJZERS.iter() {
+        for wiser in WISERS.iter() {
             d.draw_line_ex(
-                MIDDEN,
-                tijdseenheid_naar_coordinaat(
-                    milliseconden % wijzer.eenheid,
-                    wijzer.eenheid,
-                    wijzer.lengte * STRAAL,
-                    MIDDEN
+                MIDDLE,
+                time_unit_to_coordinate(
+                    milliseconds % wiser.unit,
+                    wiser.unit,
+                    wiser.length * RAY,
+                    MIDDLE
                 ),
-                wijzer.dikte,
-                wijzer.kleur
+                wiser.thiccness,
+                wiser.color
             );
         }
 
-        // teken korte lijntjes voor minuten/seconden
+        // draw short lines for minutes/seconds
         for i in 1..=60 {
-            let binnenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(i, 60, STRAAL * 0.9, MIDDEN);
-            let buitenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(i, 60, STRAAL, MIDDEN);
-            d.draw_line_ex(binnenste_coordinaat_lijn, buitenste_coordinaat_lijn, 3.0, Color::BLUE);
+            let inner_coordinate_line = time_unit_to_coordinate(i, 60, RAY * 0.9, MIDDLE);
+            let outer_coordinate_line = time_unit_to_coordinate(i, 60, RAY, MIDDLE);
+            d.draw_line_ex(inner_coordinate_line, outer_coordinate_line, 3.0, Color::BLUE);
         }
 
-        // teken langere lijntjes voor uren
-        for uur in 1..=12 {
-            let binnenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(uur, 12, STRAAL, MIDDEN);
-            let buitenste_coordinaat_lijn = tijdseenheid_naar_coordinaat(uur, 12, STRAAL * 0.8, MIDDEN);
-            d.draw_line_ex(binnenste_coordinaat_lijn, buitenste_coordinaat_lijn, 4.0, Color::GREEN);
+        // draw longer lines for hours
+        for hour in 1..=12 {
+            let inner_coordinate_line = time_unit_to_coordinate(hour, 12, RAY, MIDDLE);
+            let outer_coordinate_line = time_unit_to_coordinate(hour, 12, RAY * 0.8, MIDDLE);
+            d.draw_line_ex(inner_coordinate_line, outer_coordinate_line, 4.0, Color::GREEN);
         }
     }
 }
 
-
-// zet een tijdseenheid, zoals uren/minuten/seconden om naar een vector met een rotatie, geschaald naar wijzerlengte
-fn tijdseenheid_naar_coordinaat (tijd: u32, tijdseenheid: u32, straal: f32, toevoeging: Vector2) -> Vector2  {
-    let t = ((tijd as f32) / (tijdseenheid as f32) - 0.25) * 2.0 * PI as f32;
-    Vector2::new(t.cos(), t.sin()) * straal + toevoeging
+// converts time units, such as hours / minutes / seconds to a vector with a rotation, scaled to wiser length
+fn time_unit_to_coordinate (time: u32, time_unit: u32, ray: f32, addition: Vector2) -> Vector2  {
+    let t = ((time as f32) / (time_unit as f32) - 0.25) * 2.0 * PI as f32;
+    Vector2::new(t.cos(), t.sin()) * ray + addition
 }
